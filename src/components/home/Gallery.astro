@@ -1,0 +1,199 @@
+---
+import { Picture, getImage } from 'astro:assets';
+import Icon from '../Icon.astro';
+import { categories, photo, works } from '../../data/photos';
+
+const FIRST = 12;
+const items = await Promise.all(
+  works.map(async (w, i) => ({
+    ...w,
+    index: i,
+    full: (await getImage({ src: photo(w.name), width: 1400, format: 'webp' })).src,
+  })),
+);
+const label = Object.fromEntries(categories.map((c) => [c.id, c.label]));
+---
+
+<section id="raboty" class="section gallery" aria-labelledby="raboty-title">
+  <div class="container">
+    <div class="gallery__head">
+      <div class="section__head">
+        <h2 id="raboty-title" class="h2">Работы</h2>
+        <p class="lead">Нажмите на фото, чтобы рассмотреть ближе. Понравившуюся работу можно показать мастеру как образец.</p>
+      </div>
+      <fieldset class="gallery__filter" data-filter>
+        <legend class="visually-hidden">Показать работы</legend>
+        <label class="chip"><input type="radio" name="cat" value="all" checked /><span>Все</span></label>
+        {categories.map((c) => (
+          <label class="chip"><input type="radio" name="cat" value={c.id} /><span>{c.label}</span></label>
+        ))}
+      </fieldset>
+    </div>
+
+    <ul class="grid" data-grid>
+      {items.map((w) => (
+        <li class="work" data-cat={w.category} data-index={w.index} data-extra={w.index >= FIRST ? '' : undefined} hidden={w.index >= FIRST}>
+          <button class="work__open" type="button" data-open={w.index} data-full={w.full} data-title={w.title} data-service={w.service} data-author={w.author} data-alt={w.alt}>
+            <Picture src={photo(w.name)} alt={w.alt} formats={['avif', 'webp']} widths={[320, 480, 720]} sizes="(max-width: 760px) 46vw, (max-width: 1100px) 30vw, 22vw" loading="lazy" class="work__img" />
+            <span class="visually-hidden">Открыть фото: {w.title}</span>
+          </button>
+          <p class="work__caption"><span>{w.title}</span><span class="muted">{label[w.category]}</span></p>
+        </li>
+      ))}
+    </ul>
+
+    <div class="gallery__more">
+      <button class="btn btn--ghost" type="button" data-more>Показать все работы ({items.length})</button>
+      <p class="demo-note"><Icon name="info" /><span>Фото с Unsplash, это работы других мастеров. На демо-сайте они показывают, что делает вымышленная студия.</span></p>
+    </div>
+  </div>
+
+  <dialog class="lightbox" data-lightbox aria-labelledby="lb-title">
+    <div class="lightbox__frame">
+      <img class="lightbox__img" data-lb-img src={items[0]!.full} alt={items[0]!.alt} loading="lazy" decoding="async" />
+      <div class="lightbox__bar">
+        <div>
+          <p id="lb-title" class="lightbox__title" data-lb-title></p>
+          <p class="small muted"><span data-lb-service></span>. Фото: <a data-lb-author rel="noopener noreferrer"></a>, Unsplash</p>
+        </div>
+        <p class="lightbox__count small num" data-lb-count aria-live="polite"></p>
+        <div class="lightbox__nav">
+          <button type="button" class="round-btn" data-lb-prev><Icon name="caret-left" /><span class="visually-hidden">Предыдущее фото</span></button>
+          <button type="button" class="round-btn" data-lb-next><Icon name="caret-right" /><span class="visually-hidden">Следующее фото</span></button>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="round-btn lightbox__close" data-lb-close><Icon name="x" /><span class="visually-hidden">Закрыть</span></button>
+  </dialog>
+</section>
+
+<style>
+  .gallery__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 0 2rem; }
+  .gallery__filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem); }
+
+  .grid { columns: 4; column-gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem); }
+  .work { break-inside: avoid; margin-bottom: clamp(1rem, 0.75rem + 1vw, 1.75rem); }
+  .work__open { display: block; width: 100%; padding: 0; border: 0; background: var(--nude); border-radius: var(--r-s); overflow: hidden; cursor: zoom-in; }
+  .work__open :global(img) { width: 100%; height: auto; transition: transform 0.6s var(--ease-out); }
+  .work__open:hover :global(img) { transform: scale(1.03); }
+  .work__caption { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 0.5rem; font-size: var(--step--1); font-weight: 600; }
+
+  .gallery__more { display: grid; justify-items: center; gap: 1rem; margin-top: 1.5rem; text-align: center; }
+  .gallery__more .demo-note { max-width: 60ch; }
+
+  .round-btn {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .round-btn:hover { border-color: var(--ink); }
+  .round-btn :global(.icon) { width: 22px; height: 22px; }
+
+  .lightbox { width: min(100vw - 24px, 1100px); max-height: calc(100dvh - 24px); border-radius: var(--r-m); background: var(--milk); }
+  .lightbox[open] { display: grid; }
+  .lightbox__frame { display: grid; grid-template-rows: minmax(0, 1fr) auto; max-height: calc(100dvh - 24px); }
+  .lightbox__img { width: 100%; height: 100%; max-height: calc(100dvh - 140px); object-fit: contain; background: var(--plum); touch-action: pan-y; user-select: none; }
+  .lightbox__bar { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 1rem; padding: 0.9rem 1.1rem; }
+  .lightbox__title { font-weight: 700; }
+  .lightbox__nav { display: flex; gap: 0.5rem; }
+  .lightbox__close { position: absolute; top: 12px; right: 12px; background: var(--milk); }
+
+  @media (max-width: 1100px) { .grid { columns: 3; } }
+  @media (max-width: 760px) {
+    .grid { columns: 2; }
+    .gallery__filter { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--gutter)); padding: 4px var(--gutter); scrollbar-width: none; }
+    .gallery__filter .chip { flex: none; }
+    .work__caption .muted { display: none; }
+    .lightbox__bar { grid-template-columns: 1fr auto; }
+    .lightbox__count { display: none; }
+  }
+</style>
+
+<script>
+  import { animate } from 'motion/mini';
+  import { stagger } from 'motion';
+  import { EASE, prefersReducedMotion } from '../../lib/motion';
+
+  const grid = document.querySelector<HTMLElement>('[data-grid]');
+  const filter = document.querySelector<HTMLFieldSetElement>('[data-filter]');
+  const more = document.querySelector<HTMLButtonElement>('[data-more]');
+  const items = [...document.querySelectorAll<HTMLElement>('[data-grid] > .work')];
+  let expanded = false;
+
+  const visible = () => items.filter((i) => !i.hidden);
+
+  const apply = () => {
+    const cat = (filter?.querySelector<HTMLInputElement>('input:checked')?.value) ?? 'all';
+    items.forEach((i) => {
+      // «All» keeps the short list until it is expanded; a category always shows every match.
+      i.hidden = cat === 'all' ? !expanded && i.hasAttribute('data-extra') : i.dataset.cat !== cat;
+    });
+    if (more) more.hidden = expanded || cat !== 'all';
+    if (!prefersReducedMotion()) animate(visible(), { opacity: [0, 1], transform: ['translateY(8px)', 'translateY(0)'] }, { duration: 0.35, delay: stagger(0.03), ease: EASE });
+  };
+
+  filter?.addEventListener('change', apply);
+  more?.addEventListener('click', () => {
+    expanded = true;
+    const first = items.find((i) => i.hasAttribute('data-extra'));
+    apply();
+    first?.querySelector<HTMLButtonElement>('button')?.focus();
+  });
+
+  /* Lightbox: native dialog, so focus stays inside and Escape closes it. Arrows and swipes move through
+     the photos that are visible under the current filter. */
+  const box = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+  if (grid && box) {
+    const img = box.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const q = (s: string) => box.querySelector<HTMLElement>(s)!;
+    let list: HTMLButtonElement[] = [];
+    let pos = 0;
+    let opener: HTMLElement | null = null;
+
+    const show = (i: number) => {
+      pos = (i + list.length) % list.length;
+      const b = list[pos]!;
+      img.src = b.dataset.full!;
+      img.alt = b.dataset.alt!;
+      q('[data-lb-title]').textContent = b.dataset.title!;
+      q('[data-lb-service]').textContent = b.dataset.service!;
+      const author = q('[data-lb-author]') as HTMLAnchorElement;
+      author.textContent = b.dataset.author!;
+      author.href = `https://unsplash.com/@${b.dataset.author}`;
+      q('[data-lb-count]').textContent = `${pos + 1} из ${list.length}`;
+      if (!prefersReducedMotion()) animate(img, { opacity: [0.4, 1] }, { duration: 0.25 });
+    };
+
+    grid.addEventListener('click', (e) => {
+      const btn = (e.target as Element).closest<HTMLButtonElement>('[data-open]');
+      if (!btn) return;
+      opener = btn;
+      list = visible().map((i) => i.querySelector<HTMLButtonElement>('[data-open]')!);
+      show(list.indexOf(btn));
+      box.showModal();
+      if (!prefersReducedMotion()) animate(box, { opacity: [0, 1], transform: ['scale(0.97)', 'scale(1)'] }, { duration: 0.28, ease: EASE });
+    });
+    q('[data-lb-prev]').addEventListener('click', () => show(pos - 1));
+    q('[data-lb-next]').addEventListener('click', () => show(pos + 1));
+    q('[data-lb-close]').addEventListener('click', () => box.close());
+    box.addEventListener('click', (e) => e.target === box && box.close());
+    box.addEventListener('close', () => opener?.focus());
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(pos - 1);
+      if (e.key === 'ArrowRight') show(pos + 1);
+    });
+
+    let startX = 0;
+    img.addEventListener('pointerdown', (e) => (startX = e.clientX));
+    img.addEventListener('pointerup', (e) => {
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 40) show(pos + (dx < 0 ? 1 : -1));
+    });
+  }
+</script>

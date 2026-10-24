@@ -1,0 +1,62 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from '../Icon.astro';
+import { photo } from '../../data/photos';
+import { hygiene, visitSteps } from '../../data/content';
+---
+
+<section id="vizit" class="section visit" aria-labelledby="vizit-title">
+  <div class="container visit__grid">
+    <div class="visit__main">
+      <div class="section__head">
+        <h2 id="vizit-title" class="h2">Как проходит визит</h2>
+        <p class="lead">На маникюр с покрытием уходит около двух часов. Вот что происходит за это время.</p>
+      </div>
+      <ol class="steps">
+        {visitSteps.map((s, i) => (
+          <li class="step">
+            <span class="step__n num" aria-hidden="true">{i + 1}</span>
+            <div>
+              <h3 class="step__title">{s.title} <span class="step__time">{s.time}</span></h3>
+              <p class="step__text">{s.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <aside class="clean" aria-labelledby="clean-title">
+      <Picture src={photo('work-tools')} alt="Маникюрные инструменты, пилка и масло на сером полотенце" formats={['avif', 'webp']} widths={[480, 720, 960]} sizes="(max-width: 900px) 92vw, 34vw" loading="lazy" class="clean__photo" />
+      <h3 id="clean-title" class="clean__title">Чистота, которую видно</h3>
+      <ul class="clean__list">
+        {hygiene.map((h) => <li><Icon name="check" /><span>{h}</span></li>)}
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .visit__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(2rem, 1rem + 4vw, 5.5rem); align-items: start; }
+  .steps { display: grid; gap: 0; }
+  .step { display: grid; grid-template-columns: 4.5rem 1fr; gap: 1rem; padding-block: 1.4rem; border-top: 1px solid var(--line); }
+  .step__n { font-family: var(--font-display); font-size: 3.5rem; font-weight: 300; line-height: 0.8; color: var(--cherry); }
+  .step__title { font-size: var(--step-1); }
+  .step__time { font-weight: 500; font-size: var(--step--1); color: var(--ink-2); margin-left: 0.4rem; white-space: nowrap; }
+  .step__text { margin-top: 0.35rem; max-width: 52ch; color: var(--ink-2); }
+
+  .clean { position: sticky; top: calc(var(--header-h) + 1.5rem); padding: 0.75rem 0.75rem 1.5rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); }
+  .clean :global(.clean__photo) { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: calc(var(--r-m) - 6px); }
+  .clean__title { font-size: var(--step-2); margin: 1.25rem 0.75rem 0.75rem; }
+  .clean__list { display: grid; gap: 0.6rem; padding-inline: 0.75rem; }
+  .clean__list li { display: flex; gap: 0.6rem; align-items: flex-start; }
+  .clean__list :global(.icon) { color: var(--cherry); margin-top: 0.15em; }
+
+  @media (max-width: 900px) {
+    .visit__grid { grid-template-columns: 1fr; }
+    .clean { position: static; }
+  }
+  @media (max-width: 480px) {
+    .step { grid-template-columns: 2.75rem 1fr; }
+    .step__n { font-size: 2.75rem; }
+  }
+</style>

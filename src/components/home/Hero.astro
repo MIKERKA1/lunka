@@ -1,0 +1,150 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from '../Icon.astro';
+import { photo, tips } from '../../data/photos';
+import { minutes, rub, serviceById } from '../../data/services';
+
+const gel = serviceById('gel')!;
+const cheapest = serviceById('manicure')!;
+// Fingers of a hand, little finger to thumb: the five photos stand at their heights.
+const fingers = ['f-little', 'f-ring', 'f-middle', 'f-index', 'f-thumb'];
+const shapes = ['square', 'oval', 'almond', 'squoval', 'round'];
+---
+
+<section class="hero" data-hero aria-labelledby="hero-title">
+  <div class="container hero__grid">
+    <div class="hero__copy">
+      <h1 id="hero-title" class="display hero__title" data-anim data-hero-title>Маникюр, который нравится все три недели</h1>
+      <p class="lead hero__lead" data-anim>
+        Студия маникюра и педикюра в Москве. Поможем выбрать форму и цвет, а цену и время вы увидите ещё до записи.
+      </p>
+      <div class="hero__ctas" data-anim>
+        <a class="btn btn--primary" href="#zapis">Записаться</a>
+        <a class="btn btn--ghost" href="#ceny">Посмотреть цены</a>
+      </div>
+    </div>
+
+    <ul class="hero__facts" data-anim>
+        <li><Icon name="check" /><span>Маникюр с гель-лаком {rub(gel.price)}, около {minutes(gel.duration)}</span></li>
+        <li><Icon name="check" /><span>Без покрытия от {rub(cheapest.price)}, все доплаты в прайсе</span></li>
+        <li><Icon name="check" /><span>Пакет со стерильными инструментами вскрываем при вас</span></li>
+      </ul>
+
+    <div class="hand" data-anim aria-label="Пять работ студии разной формы">
+      {tips.map((tip, i) => (
+        <figure class:list={['tip', fingers[i]]}>
+          <div class:list={['tip__nail', `nail-${shapes[i]}`]} data-tip>
+            <Picture
+              src={photo(tip.name)}
+              alt={tip.alt}
+              formats={['avif', 'webp']}
+              widths={[180, 270, 360, 480]}
+              sizes="(max-width: 760px) 19vw, 11vw"
+              loading="eager"
+              fetchpriority={i === 2 ? 'high' : 'auto'}
+              class="tip__img"
+            />
+          </div>
+          <figcaption class="tip__label">{tip.shape}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { padding-block: clamp(1.5rem, 1rem + 2vw, 3rem) clamp(3rem, 2rem + 4vw, 5.5rem); overflow-x: clip; }
+  .hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+    grid-template-areas: 'copy hand' 'facts hand';
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(2rem, 1rem + 4vw, 5rem);
+  }
+  .hero__copy { grid-area: copy; }
+  .hero__facts { grid-area: facts; align-self: end; }
+  .hand { grid-area: hand; align-self: end; }
+  .hero__title { max-width: 7.4em; font-size: clamp(3.4rem, 2rem + 5.2vw, 7rem); }
+  .hero__lead { margin-top: 1.5rem; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+  .hero__facts { display: grid; gap: 0.5rem; margin-top: 2.25rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--ink-2); }
+  .hero__facts li { display: flex; gap: 0.6rem; align-items: flex-start; }
+  .hero__facts :global(.icon) { color: var(--cherry); margin-top: 0.15em; }
+
+  /* ---- The hand ---- */
+  .hand {
+    --hand-h: clamp(380px, calc(100svh - 300px), 600px);
+    padding-bottom: 2rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2.2%;
+  }
+  .tip { flex: 0 0 17%; display: grid; gap: 0.6rem; justify-items: center; }
+  .tip__nail { width: 100%; overflow: hidden; background: var(--nude); }
+  .tip__img, .tip :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .tip__label { font-size: var(--step--1); font-weight: 600; color: var(--ink-2); }
+
+  .nail-square { border-radius: var(--nail-square); }
+  .nail-oval { border-radius: var(--nail-oval); }
+  .nail-almond { border-radius: var(--nail-almond); }
+  .nail-squoval { border-radius: var(--nail-squoval); }
+  .nail-round { border-radius: var(--nail-round); }
+
+  /* Heights of the fingers; the thumb sits lower and a little apart, as on a real hand. */
+  .f-little .tip__nail { height: calc(var(--hand-h) * 0.6); }
+  .f-ring .tip__nail { height: calc(var(--hand-h) * 0.82); }
+  .f-middle .tip__nail { height: calc(var(--hand-h) * 0.92); }
+  .f-index .tip__nail { height: calc(var(--hand-h) * 0.84); }
+  .f-thumb { margin-left: 3%; margin-bottom: -1.75rem; }
+  .f-thumb .tip__nail { height: calc(var(--hand-h) * 0.56); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .hero [data-anim] { opacity: 0; animation: hero-failsafe 0.3s 2.4s forwards; }
+    :global(.js.hero-ready) .hero [data-anim] { animation: none; }
+  }
+  @keyframes hero-failsafe { to { opacity: 1; } }
+
+  @media (max-width: 1000px) {
+    .hero__grid { grid-template-columns: 1fr; grid-template-areas: 'copy' 'hand' 'facts'; grid-template-rows: none; }
+    .hand { --hand-h: clamp(250px, 56vw, 440px); justify-content: flex-start; }
+  }
+  @media (max-width: 760px) {
+    .hero { padding-top: 1rem; }
+    .hero__lead { margin-top: 1rem; font-size: 1.125rem; }
+    .hero__ctas { display: grid; grid-template-columns: 1fr 1fr; margin-top: 1.5rem; }
+    .hero__ctas .btn { padding-inline: 0.75rem; }
+    .hand { gap: 1.6%; margin-top: 2rem; padding-bottom: 1.75rem; }
+    .tip__label { font-size: 0.75rem; }
+    .hero__facts { margin-top: 1.5rem; }
+  }
+</style>
+
+<script>
+  import { createTimeline, stagger, splitText } from 'animejs';
+  import { prefersReducedMotion } from '../../lib/motion';
+
+  /* The one orchestrated moment: the headline rises while the five nails are «painted»
+     from cuticle to tip, the way a brush lays lacquer. */
+  const html = document.documentElement;
+  if (prefersReducedMotion()) {
+    html.classList.add('hero-ready');
+  } else {
+    const title = document.querySelector<HTMLElement>('[data-hero-title]');
+    const words = title ? splitText(title, { words: true }).words : [];
+    const nails = document.querySelectorAll<HTMLElement>('[data-tip]');
+    html.classList.add('hero-ready');
+    createTimeline({ defaults: { ease: 'out(3)' } })
+      .set(words, { opacity: 0 }, 0)
+      .set('.hero__lead, .hero__ctas, .hero__facts, .tip__label', { opacity: 0 }, 0)
+      .set(nails, { clipPath: 'inset(100% 0% 0% 0%)' }, 0)
+      .set('.hero [data-anim]', { opacity: 1 }, 0)
+      .add(words, { opacity: [0, 1], y: ['0.4em', '0em'], duration: 600, delay: stagger(55) }, 0)
+      .add('.hero__lead, .hero__ctas, .hero__facts', { opacity: [0, 1], y: [10, 0], duration: 550, delay: stagger(80) }, 220)
+      .add(nails, { clipPath: ['inset(100% 0% 0% 0%)', 'inset(0% 0% 0% 0%)'], duration: 900, ease: 'inOut(3)', delay: stagger(110) }, 150)
+      .add('.tip__img', { scale: [1.12, 1], duration: 1400, delay: stagger(110) }, 150)
+      .add('.tip__label', { opacity: [0, 1], duration: 400, delay: stagger(60) }, 1000)
+      // Leave no inline clip-path behind: the rounded outline alone should shape the nail.
+      .call(() => nails.forEach((n) => (n.style.clipPath = '')), 1700);
+  }
+</script>

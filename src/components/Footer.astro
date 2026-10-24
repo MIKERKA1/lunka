@@ -1,0 +1,70 @@
+---
+import { withBase } from '../lib/url';
+import Logo from './Logo.astro';
+import { nav, site } from '../data/site';
+import { allAuthors } from '../data/photos';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <a href={withBase('/')} aria-label="Лунка, на главную" class="footer__logo"><Logo /></a>
+      <p class="muted">Маникюр и педикюр в Москве. {site.address}.</p>
+    </div>
+
+    <nav aria-label="Разделы сайта">
+      <ul class="footer__list">
+        {nav.map((item) => <li><a href={withBase(item.href)}>{item.label}</a></li>)}
+        <li><a href={withBase('/#zapis')}>Запись</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <ul class="footer__list">
+        <li><a class="num" href={site.phone.href}>{site.phone.display}</a></li>
+        <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li class="muted">{site.hours}</li>
+        <li><a href={withBase('/privacy/')}>Политика конфиденциальности</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer__legal small">
+    <p>
+      Это демо-проект для портфолио. Студии «Лунка» не существует: адрес, телефон, почта, мастера, цены и отзывы придуманы, а заявки с сайта никуда не отправляются.
+    </p>
+    <details class="footer__credits">
+      <summary>Авторы фотографий</summary>
+      <p>
+        Фотографии с Unsplash по лицензии Unsplash. На них работы других мастеров, на этом сайте они показывают, какие работы делает вымышленная студия. Авторы:
+        {allAuthors.map((a, i) => (
+          <>
+            {i > 0 && ', '}
+            <a href={`https://unsplash.com/@${a}`} rel="noopener noreferrer">{a}</a>
+          </>
+        ))}.
+      </p>
+    </details>
+    <p class="muted">© {year} Лунка, демо. Шрифт Sofia Sans (SIL OFL), иконки Phosphor (MIT).</p>
+  </div>
+</footer>
+
+<style>
+  .footer { padding-block: clamp(3rem, 2rem + 3vw, 4.5rem) 2rem; border-top: 1px solid var(--line); }
+  .footer__grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2rem; }
+  .footer__logo { display: inline-block; text-decoration: none; margin-bottom: 0.75rem; }
+  .footer__brand p { max-width: 30ch; }
+  .footer__list { display: grid; gap: 0.35rem; }
+  .footer__list a { display: inline-block; padding-block: 0.3rem; text-decoration: none; }
+  .footer__list a:hover { text-decoration: underline; }
+  .footer__legal { display: grid; gap: 0.75rem; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--ink-2); }
+  .footer__legal p { max-width: 90ch; }
+  .footer__credits summary { font-weight: 600; color: var(--ink); min-height: 44px; display: flex; align-items: center; }
+  .footer__credits summary:hover { text-decoration: underline; }
+  @media (max-width: 760px) {
+    .footer__grid { grid-template-columns: 1fr 1fr; }
+    .footer__brand { grid-column: 1 / -1; }
+  }
+</style>

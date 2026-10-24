@@ -1,0 +1,177 @@
+---
+import Icon from '../Icon.astro';
+import { feetQuestion, goalQuestion, nailsQuestion, type Question } from '../../data/helper';
+
+const questions: { q: Question<string>; step: string; hidden: boolean }[] = [
+  { q: goalQuestion, step: 'goal', hidden: false },
+  { q: nailsQuestion, step: 'nails', hidden: true },
+  { q: feetQuestion, step: 'feet', hidden: true },
+];
+---
+
+<section id="vybor" class="section band-plum helper" aria-labelledby="vybor-title">
+  <div class="container helper__grid">
+    <div class="helper__intro">
+      <h2 id="vybor-title" class="h2">Не знаете, что выбрать?</h2>
+      <p class="lead">Ответьте на два вопроса. Подскажем услугу, цену и сколько времени заложить на визит. Мастер всё равно посмотрит на ногти и поправит, если нужно.</p>
+    </div>
+
+    <form class="helper__form" data-helper novalidate>
+      {questions.map(({ q, step, hidden }) => (
+        <fieldset class="hq" data-step={step} hidden={hidden}>
+          <legend class="hq__title">{q.title}</legend>
+          <div class="hq__options">
+            {q.options.map((o) => (
+              <label class="opt">
+                <input type="radio" name={q.id} value={o.value} />
+                <span class="opt__box">
+                  <span class="opt__label">{o.label}</span>
+                  <span class="opt__hint">{o.hint}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      ))}
+
+      <div class="result" data-result hidden aria-live="polite">
+        <p class="result__kicker">Вам подойдёт</p>
+        <p class="result__name" data-r-name></p>
+        <p class="result__why" data-r-why></p>
+        <dl class="result__lines" data-r-lines></dl>
+        <div class="result__total">
+          <p><span class="result__sum num" data-r-total></span> <span class="muted">итого</span></p>
+          <p class="result__time"><Icon name="clock" /><span data-r-time></span></p>
+        </div>
+        <div class="result__actions">
+          <a class="btn btn--primary" href="#zapis" data-r-book data-book="">Записаться на это</a>
+          <button class="link-btn" type="button" data-r-reset><Icon name="arrow-counter-clockwise" /> Начать заново</button>
+        </div>
+      </div>
+      <noscript><p class="muted">Помощнику нужен JavaScript. Все услуги с ценами есть в прайсе ниже.</p></noscript>
+    </form>
+  </div>
+</section>
+
+<style>
+  .helper__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 1rem + 4vw, 5.5rem); align-items: start; }
+  .helper__intro { position: sticky; top: calc(var(--header-h) + 1.5rem); }
+  .helper__intro .lead { margin-top: 1.25rem; }
+  .helper__form { display: grid; gap: 2rem; }
+
+  .hq__title { font-size: var(--step-1); font-weight: 650; margin-bottom: 0.9rem; }
+  .hq__options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+  .opt { position: relative; display: flex; touch-action: manipulation; }
+  .opt input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .opt__box {
+    display: grid;
+    gap: 0.15rem;
+    width: 100%;
+    min-height: 76px;
+    padding: 0.9rem 1.1rem;
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--r-m);
+    transition: background-color var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
+  }
+  .opt:hover .opt__box { border-color: var(--ink); }
+  .opt input:checked + .opt__box { background: var(--milk); border-color: var(--milk); color: var(--plum); }
+  .opt input:checked + .opt__box .opt__hint { color: var(--plum-2); }
+  .opt input:focus-visible + .opt__box { outline: 2.5px solid var(--focus); outline-offset: 3px; }
+  .opt__label { font-weight: 650; line-height: 1.25; }
+  .opt__hint { font-size: var(--step--1); color: var(--ink-2); }
+
+  .result {
+    padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+    border-radius: var(--r-m);
+    background: var(--milk);
+    color: var(--plum);
+    --ink: var(--plum);
+    --ink-2: var(--plum-2);
+    --focus: var(--plum);
+  }
+  .result__kicker { font-weight: 600; color: var(--plum-2); }
+  .result__name { font-family: var(--font-display); font-size: var(--step-3); font-weight: 640; line-height: 1; margin-top: 0.25rem; }
+  .result__why { margin-top: 0.75rem; max-width: 52ch; }
+  .result__lines { display: grid; gap: 0.35rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+  .result__lines :global(div) { display: flex; justify-content: space-between; gap: 1rem; }
+  .result__lines :global(dd) { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .result__total { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.5rem 1.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+  .result__sum { font-family: var(--font-display); font-size: var(--step-3); font-weight: 700; }
+  .result__time { display: inline-flex; gap: 0.4rem; align-items: center; font-weight: 600; }
+  .result__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 1.5rem; }
+  .result__actions .link-btn { display: inline-flex; gap: 0.4rem; align-items: center; min-height: 44px; }
+
+  @media (max-width: 900px) {
+    .helper__grid { grid-template-columns: 1fr; }
+    .helper__intro { position: static; }
+  }
+  @media (max-width: 520px) {
+    .hq__options { grid-template-columns: 1fr; }
+    .opt__box { min-height: 64px; }
+  }
+</style>
+
+<script>
+  import { recommend, type FeetColor, type Goal, type Nails } from '../../data/helper';
+  import { minutes, rub } from '../../data/services';
+  import { focusQuietly, reveal } from '../../lib/motion';
+
+  const form = document.querySelector<HTMLFormElement>('[data-helper]');
+  if (form) {
+    const step = (name: string) => form.querySelector<HTMLFieldSetElement>(`[data-step="${name}"]`)!;
+    const result = form.querySelector<HTMLElement>('[data-result]')!;
+    const $ = (sel: string) => result.querySelector<HTMLElement>(sel)!;
+    const value = (name: string) => (form.elements.namedItem(name) as RadioNodeList | null)?.value || null;
+
+    const show = (el: HTMLElement, visible: boolean) => {
+      if (el.hidden === !visible) return;
+      el.hidden = !visible;
+      if (visible) reveal(el, 12);
+    };
+
+    const render = () => {
+      const goal = value('goal') as Goal | null;
+      show(step('nails'), !!goal && goal !== 'feet');
+      show(step('feet'), goal === 'feet');
+      const r = recommend(goal, value('nails') as Nails | null, value('feet') as FeetColor | null);
+      if (!r) return show(result, false);
+
+      $('[data-r-name]').textContent = r.service.name;
+      $('[data-r-why]').textContent = r.why;
+      const lines = $('[data-r-lines]');
+      lines.replaceChildren(
+        ...[{ label: r.service.name, price: r.service.price }, ...r.addons].map((l) => {
+          const row = document.createElement('div');
+          const dt = document.createElement('dt');
+          const dd = document.createElement('dd');
+          dt.textContent = l.label;
+          dd.textContent = rub(l.price);
+          row.append(dt, dd);
+          return row;
+        }),
+      );
+      $('[data-r-total]').textContent = rub(r.total);
+      $('[data-r-time]').textContent = `около ${minutes(r.duration)}`;
+      const book = $('[data-r-book]');
+      book.dataset.book = r.service.id;
+      book.dataset.extras = r.addons.map((a) => a.id).join(' ');
+      const wasHidden = result.hidden;
+      show(result, true);
+      if (wasHidden) result.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    };
+
+    form.addEventListener('change', (e) => {
+      // A new goal makes the follow-up answers meaningless, so they are cleared.
+      if ((e.target as HTMLInputElement).name === 'goal') {
+        form.querySelectorAll<HTMLInputElement>('[name="nails"], [name="feet"]').forEach((i) => (i.checked = false));
+      }
+      render();
+    });
+    form.addEventListener('submit', (e) => e.preventDefault());
+    $('[data-r-reset]').addEventListener('click', () => {
+      form.reset();
+      render();
+      focusQuietly(form.querySelector<HTMLInputElement>('[name="goal"]'));
+    });
+  }
+</script>

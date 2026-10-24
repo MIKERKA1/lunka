@@ -1,0 +1,70 @@
+---
+import '@fontsource-variable/sofia-sans/wght.css';
+import '@fontsource-variable/sofia-sans-extra-condensed/wght.css';
+import '../styles/global.css';
+import displayFont from '@fontsource-variable/sofia-sans-extra-condensed/files/sofia-sans-extra-condensed-cyrillic-wght-normal.woff2?url';
+import bodyFont from '@fontsource-variable/sofia-sans/files/sofia-sans-cyrillic-wght-normal.woff2?url';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import IconSprite from '../components/IconSprite.astro';
+import { withBase } from '../lib/url';
+import { site } from '../data/site';
+import { JS_FLAG } from '../lib/js-flag.mjs';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { title, description = site.description, noindex = false } = Astro.props;
+const pageTitle = title ? `${title} | ${site.name}` : site.title;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(withBase('/og.jpg'), Astro.site);
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="theme-color" content="#f6f1ee" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+    <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline set:html={JS_FLAG} />
+    <slot name="head" />
+  </head>
+  <body>
+    <IconSprite />
+    <a class="skip-link" href="#main">Перейти к содержимому</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <slot name="after" />
+  </body>
+</html>
+
+<style is:global>
+  main:focus { outline: none; }
+</style>

@@ -1,0 +1,66 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from '../Icon.astro';
+import { photo } from '../../data/photos';
+import { masters } from '../../data/content';
+
+// Russian dative for the booking buttons: «к Ане», «к Вике», «к Марине».
+const dative = (name: string) => name.replace(/я$/, 'е').replace(/а$/, 'е');
+---
+
+<section id="mastera" class="section masters" aria-labelledby="mastera-title">
+  <div class="container">
+    <div class="section__head">
+      <h2 id="mastera-title" class="h2">Мастера</h2>
+      <p class="lead">Вместо портретов показываем почерк: работу, которую каждая делает чаще всего и лучше всего.</p>
+    </div>
+
+    <ul class="masters__list">
+      {masters.map((m) => (
+        <li class="master">
+          <figure class="master__work">
+            <Picture src={photo(m.photo)} alt={m.photoAlt} formats={['avif', 'webp']} widths={[360, 540, 720]} sizes="(max-width: 760px) 78vw, 28vw" loading="lazy" />
+          </figure>
+          <h3 class="master__name">{m.name}</h3>
+          <p class="master__role">{m.role}</p>
+          <p class="master__years small">{m.years}</p>
+          <p class="master__text">{m.text}</p>
+          <p class="master__go small"><strong>Идут за:</strong> {m.goTo}</p>
+          <a class="btn btn--ghost btn--small master__book" href="#zapis" data-master={m.name}>Записаться к {dative(m.name)}</a>
+        </li>
+      ))}
+    </ul>
+    <p class="demo-note masters__note"><Icon name="info" /><span>Мастера придуманы для демо. Фото их «работ» взяты с Unsplash.</span></p>
+  </div>
+</section>
+
+<style>
+  .masters__list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 1rem + 2vw, 3rem); align-items: start; }
+  /* A loose stagger, like three photos laid on a table, rather than a row of identical profile cards. */
+  .master:nth-child(2) { margin-top: clamp(2rem, 1rem + 4vw, 5rem); }
+  .master:nth-child(3) { margin-top: clamp(1rem, 0.5rem + 2vw, 2.5rem); }
+  .master__work { aspect-ratio: 4 / 5; overflow: hidden; border-radius: var(--nail-oval); background: var(--nude); }
+  .master__work :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .master__name { font-family: var(--font-display); font-size: var(--step-3); font-weight: 640; line-height: 1; margin-top: 1.25rem; }
+  .master__role { font-weight: 650; margin-top: 0.35rem; color: var(--cherry); }
+  .master__years { color: var(--ink-2); }
+  .master__text { margin-top: 0.75rem; }
+  .master__go { margin-top: 0.75rem; color: var(--ink-2); }
+  .master__go strong { color: var(--ink); }
+  .master__book { margin-top: 1.25rem; }
+  .masters__note { margin-top: 2.5rem; }
+
+  @media (max-width: 860px) {
+    .masters__list {
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-auto-columns: min(78vw, 340px);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      margin-inline: calc(-1 * var(--gutter));
+      padding: 0 var(--gutter) 0.75rem;
+      scroll-padding-inline: var(--gutter);
+    }
+    .master { scroll-snap-align: start; margin-top: 0 !important; }
+  }
+</style>

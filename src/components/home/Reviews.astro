@@ -1,0 +1,53 @@
+---
+import Icon from '../Icon.astro';
+import { reviews } from '../../data/content';
+
+const [first, ...rest] = reviews;
+---
+
+<section class="section band-nude reviews" aria-labelledby="otzyvy-title">
+  <div class="container">
+    <div class="reviews__top">
+      <h2 id="otzyvy-title" class="h2">Что говорят после визита</h2>
+      <figure class="quote quote--big">
+        <blockquote><p>{first.text}</p></blockquote>
+        <figcaption><strong>{first.name}</strong>, {first.service.toLowerCase()}</figcaption>
+      </figure>
+    </div>
+
+    <ul class="reviews__rest">
+      {rest.map((r) => (
+        <li>
+          <figure class="quote">
+            <blockquote><p>{r.text}</p></blockquote>
+            <figcaption><strong>{r.name}</strong>, {r.service.toLowerCase()}</figcaption>
+          </figure>
+        </li>
+      ))}
+    </ul>
+    <p class="demo-note"><Icon name="info" /><span>Отзывы придуманы для демо-версии сайта. В рабочей версии здесь будут настоящие отзывы со ссылкой на источник.</span></p>
+  </div>
+</section>
+
+<style>
+  .reviews__top { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 2rem clamp(2rem, 1rem + 4vw, 5.5rem); align-items: start; }
+  .quote blockquote { margin: 0; }
+  .quote figcaption { margin-top: 1rem; color: var(--ink-2); }
+  .quote figcaption strong { color: var(--ink); }
+  .quote--big { max-width: 30em; }
+  .quote--big blockquote p {
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 500;
+    line-height: 1.12;
+    text-indent: -0.4em;
+  }
+  .quote--big blockquote p::before { content: '«'; color: var(--cherry); }
+  .quote--big blockquote p::after { content: '»'; color: var(--cherry); }
+  .reviews__rest { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 1rem + 2vw, 3rem); margin-block: clamp(2.5rem, 2rem + 3vw, 4.5rem) 2rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+  .reviews__rest blockquote p { font-size: var(--step-1); line-height: 1.45; }
+
+  @media (max-width: 860px) {
+    .reviews__rest, .reviews__top { grid-template-columns: 1fr; }
+  }
+</style>

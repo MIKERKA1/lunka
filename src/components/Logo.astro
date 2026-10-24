@@ -1,0 +1,28 @@
+---
+// The mark is a nail seen from above: the outline of the plate and its lunula, the pale crescent the salon is named after.
+interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+---
+
+<span class:list={['logo', cls]}>
+  <svg class="logo__mark" viewBox="0 0 20 26" aria-hidden="true" focusable="false">
+    <path d="M2.5 24.5V10.5a7.5 8.5 0 0 1 15 0v14z" fill="none" stroke="currentColor" stroke-width="2" />
+    <path d="M5.5 24.5a4.5 4 0 0 1 9 0z" class="logo__lunula" />
+  </svg>
+  <span class="logo__word">лунка</span>
+</span>
+
+<style>
+  .logo { display: inline-flex; align-items: flex-end; gap: 0.4rem; color: var(--ink); }
+  .logo__mark { width: 18px; height: 24px; margin-bottom: 0.32rem; }
+  .logo__lunula { fill: var(--cherry); }
+  .logo__word {
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.005em;
+  }
+</style>

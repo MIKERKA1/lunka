@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import MobileBar from '../components/MobileBar.astro';
+import Hero from '../components/home/Hero.astro';
+import Services from '../components/home/Services.astro';
+import Helper from '../components/home/Helper.astro';
+import Gallery from '../components/home/Gallery.astro';
+import Prices from '../components/home/Prices.astro';
+import Visit from '../components/home/Visit.astro';
+import Masters from '../components/home/Masters.astro';
+import Reviews from '../components/home/Reviews.astro';
+import Booking from '../components/home/Booking.astro';
+import Faq from '../components/home/Faq.astro';
+import Contacts from '../components/home/Contacts.astro';
+---
+
+<Base>
+  <Hero />
+  <Services />
+  <Helper />
+  <Gallery />
+  <Prices />
+  <Visit />
+  <Masters />
+  <Reviews />
+  <Booking />
+  <Faq />
+  <Contacts />
+  <MobileBar slot="after" />
+</Base>

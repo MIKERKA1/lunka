@@ -1,0 +1,375 @@
+---
+import Icon from '../Icon.astro';
+import { withBase } from '../../lib/url';
+import { formExtras, slots } from '../../lib/booking';
+import { rub, services } from '../../data/services';
+import { masters } from '../../data/content';
+import { site } from '../../data/site';
+
+const bookable = services.filter((s) => !s.addon);
+---
+
+<section id="zapis" class="section booking" aria-labelledby="zapis-title">
+  <div class="container booking__grid">
+    <div class="booking__intro">
+      <h2 id="zapis-title" class="h2" tabindex="-1">Запись</h2>
+      <p class="lead">Выберите услугу и удобное время. Администратор перезвонит в течение 15 минут и подтвердит запись.</p>
+      <p class="booking__call">Удобнее голосом? <a class="num" href={site.phone.href}>{site.phone.display}</a></p>
+    </div>
+
+    <div class="booking__body">
+      <form class="bform" data-booking novalidate>
+        <div class="errors" data-errors tabindex="-1" hidden>
+          <p class="errors__title"><Icon name="info" /> Проверьте несколько полей</p>
+          <ul data-errors-list></ul>
+        </div>
+
+        <fieldset class="bform__group">
+          <legend class="bform__legend"><span class="num">1</span> Что делаем</legend>
+          <div class="field">
+            <label class="field__label" for="b-service">Услуга</label>
+            <select class="input" id="b-service" name="service" required aria-describedby="b-service-err">
+              <option value="">Выберите услугу</option>
+              {bookable.map((s) => <option value={s.id}>{s.name}, {rub(s.price)}</option>)}
+              <option value="unsure">Пока не знаю, подскажите на месте</option>
+            </select>
+            <p class="field__error" id="b-service-err" data-error="service"></p>
+          </div>
+          <fieldset class="field">
+            <legend class="field__label">Дополнительно <span class="muted">(если нужно)</span></legend>
+            <div class="extras">
+              {formExtras.map((x) => (
+                <label class="check">
+                  <input type="checkbox" name="extras" value={x.id} />
+                  <span>{x.label} <span class="muted num">+{rub(x.price)}</span>{'hint' in x && <span class="field__hint extras__hint">{x.hint}</span>}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div class="field">
+            <label class="field__label" for="b-master">Мастер</label>
+            <select class="input" id="b-master" name="master">
+              <option value="">Любой свободный</option>
+              {masters.map((m) => <option value={m.name}>{m.name}, {m.role.toLowerCase()}</option>)}
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset class="bform__group">
+          <legend class="bform__legend"><span class="num">2</span> Когда удобно</legend>
+          <div class="field">
+            <label class="field__label" for="b-date">День</label>
+            <input class="input bform__date" id="b-date" name="date" type="date" required aria-describedby="b-date-err" data-date />
+            <p class="field__error" id="b-date-err" data-error="date"></p>
+          </div>
+          <fieldset class="field">
+            <legend class="field__label">Время</legend>
+            <div class="slots">
+              {slots.map((s) => (
+                <label class="chip"><input type="radio" name="slot" value={s.value} aria-describedby="b-slot-err" /><span>{s.label} <span class="muted num">{s.hint}</span></span></label>
+              ))}
+            </div>
+            <p class="field__hint">Точное время администратор предложит по телефону, когда посмотрит свободные окна.</p>
+            <p class="field__error" id="b-slot-err" data-error="slot"></p>
+          </fieldset>
+        </fieldset>
+
+        <fieldset class="bform__group">
+          <legend class="bform__legend"><span class="num">3</span> Как с вами связаться</legend>
+          <div class="bform__row">
+            <div class="field">
+              <label class="field__label" for="b-name">Имя</label>
+              <input class="input" id="b-name" name="name" type="text" autocomplete="given-name" spellcheck="false" required aria-describedby="b-name-err" />
+              <p class="field__error" id="b-name-err" data-error="name"></p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="b-phone">Телефон</label>
+              <input class="input num" id="b-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (900) 000-00-00" required aria-describedby="b-phone-err" />
+              <p class="field__error" id="b-phone-err" data-error="phone"></p>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="b-comment">Комментарий <span class="muted">(если нужно)</span></label>
+            <textarea class="input" id="b-comment" name="comment" rows="3" autocomplete="off" placeholder="Например: как на фото «Синий френч с омбре»…"></textarea>
+          </div>
+          <label class="check">
+            <input type="checkbox" name="consent" required aria-describedby="b-consent-err" />
+            <span>Даю согласие на обработку имени и телефона для записи</span>
+          </label>
+          <a class="small bform__policy" href={withBase('/privacy/')}>Как мы обращаемся с данными</a>
+          <p class="field__error" id="b-consent-err" data-error="consent"></p>
+        </fieldset>
+
+        <div class="bform__submit">
+          <button class="btn btn--primary" type="submit">Записаться</button>
+          <p class="demo-note"><Icon name="info" /><span>Демо-сайт: заявка соберётся на этой странице и никуда не отправится.</span></p>
+        </div>
+      </form>
+
+      <aside class="summary" aria-labelledby="sum-title" data-summary>
+        <p id="sum-title" class="summary__title">Ваша запись</p>
+        <p class="summary__service" data-s-service>Услуга не выбрана</p>
+        <ul class="summary__extras small" data-s-extras></ul>
+        <dl class="summary__nums">
+          <div><dt>Стоимость</dt><dd class="num" data-s-price>—</dd></div>
+          <div><dt>По времени</dt><dd class="num" data-s-time>—</dd></div>
+        </dl>
+        <p class="small muted">Оплата после процедуры. Перенести или отменить можно за 3 часа, без штрафа.</p>
+      </aside>
+
+      <div class="done" data-done hidden tabindex="-1" aria-labelledby="done-title">
+        <Icon name="check-circle" class="done__icon" />
+        <h3 id="done-title" class="done__title">Заявка собрана</h3>
+        <p>Это демо-сайт, поэтому заявка <strong>никуда не отправлена и нигде не сохранена</strong>. В рабочей версии администратор перезвонил бы по указанному номеру и подтвердил время.</p>
+        <dl class="done__list" data-done-list></dl>
+        <div class="done__actions">
+          <button class="btn btn--ghost" type="button" data-edit>Изменить заявку</button>
+          <button class="link-btn" type="button" data-clear>Очистить и начать заново</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .booking__grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(2rem, 1rem + 4vw, 5rem); }
+  .booking__intro .lead { margin-top: 1.25rem; }
+  .booking__intro h2:focus { outline: none; }
+  .booking__call { margin-top: 1.5rem; font-weight: 600; }
+  .booking__body { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 2rem; align-items: start; }
+
+  .bform { display: grid; gap: 2.25rem; }
+  .bform__group { display: grid; gap: 1.25rem; }
+  .bform__legend { display: flex; align-items: center; gap: 0.6rem; font-size: var(--step-2); font-weight: 650; margin-bottom: 0.25rem; }
+  .bform__legend .num { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--plum); color: var(--milk); font-size: 1rem; }
+  .bform__row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .extras { display: grid; gap: 0.75rem; }
+  .bform__policy { justify-self: start; margin: -0.75rem 0 0 2.25rem; padding-block: 0.4rem; }
+  .extras__hint { display: block; }
+  .slots { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .bform__date { max-width: 260px; }
+  .bform__submit { display: grid; gap: 1rem; justify-items: start; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .bform__submit .btn { min-width: 240px; }
+
+  .errors { padding: 1rem 1.2rem; border: 1.5px solid var(--error); border-radius: var(--r-m); background: color-mix(in oklab, var(--error) 6%, var(--surface)); }
+  .errors:focus { outline: 2.5px solid var(--focus); outline-offset: 3px; }
+  .errors__title { display: flex; gap: 0.5rem; align-items: center; font-weight: 700; color: var(--error); }
+  .errors ul { margin-top: 0.5rem; padding-left: 1.75rem; display: grid; gap: 0.2rem; }
+
+  .summary { position: sticky; top: calc(var(--header-h) + 1.5rem); padding: 1.4rem; border-radius: var(--r-m); background: var(--nude); }
+  .summary__title { font-weight: 700; }
+  .summary__service { font-family: var(--font-display); font-size: 1.9rem; font-weight: 640; line-height: 1.05; margin-top: 0.5rem; }
+  .summary__extras { margin-top: 0.5rem; display: grid; gap: 0.15rem; color: var(--plum-2); }
+  .summary__extras:empty { display: none; }
+  .summary__nums { display: grid; gap: 0.4rem; margin-block: 1.25rem 1rem; padding-block: 1rem; border-block: 1px solid var(--nude-deep); }
+  .summary__nums div { display: flex; justify-content: space-between; gap: 1rem; }
+  .summary__nums dd { font-weight: 700; text-align: right; }
+
+  .done { grid-column: 1 / -1; padding: clamp(1.5rem, 1rem + 2vw, 2.5rem); border-radius: var(--r-m); background: var(--surface); border: 1px solid var(--line); }
+  .done:focus { outline: none; }
+  .done :global(.done__icon) { width: 44px; height: 44px; color: var(--ok); }
+  .done__title { font-family: var(--font-display); font-size: var(--step-3); font-weight: 640; line-height: 1; margin-block: 0.75rem; }
+  .done > p { max-width: 60ch; }
+  .done__list { display: grid; grid-template-columns: auto 1fr; gap: 0.4rem 1.5rem; margin-block: 1.5rem; padding-block: 1.25rem; border-block: 1px solid var(--line); }
+  .done__list :global(dt) { color: var(--ink-2); }
+  .done__list :global(dd) { font-weight: 600; }
+  .done__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; }
+
+  @media (max-width: 1100px) {
+    .booking__grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .booking__body { grid-template-columns: 1fr; }
+    /* On a phone the summary comes right before the button, where the decision is made. */
+    .summary { position: static; order: -1; }
+    .bform__row { grid-template-columns: 1fr; }
+    .bform__submit .btn { width: 100%; }
+    .bform__date { max-width: none; }
+  }
+</style>
+
+<script>
+  import { dateRange, estimate, formExtras, slots, validate, type BookingErrors } from '../../lib/booking';
+  import { formatPhone, maskPhone, normalizePhone } from '../../lib/phone';
+  import { minutes, rub, serviceById } from '../../data/services';
+  import { focusQuietly, reveal } from '../../lib/motion';
+
+  const form = document.querySelector<HTMLFormElement>('[data-booking]');
+  const summary = document.querySelector<HTMLElement>('[data-summary]');
+  const done = document.querySelector<HTMLElement>('[data-done]');
+
+  if (form && summary && done) {
+    const el = <T extends Element = HTMLInputElement>(name: string) => form.elements.namedItem(name) as unknown as T;
+    const service = el<HTMLSelectElement>('service');
+    const master = el<HTMLSelectElement>('master');
+    const date = el<HTMLInputElement>('date');
+    const name = el<HTMLInputElement>('name');
+    const phone = el<HTMLInputElement>('phone');
+    const consent = el<HTMLInputElement>('consent');
+    const extraBoxes = [...form.querySelectorAll<HTMLInputElement>('[name="extras"]')];
+    const slotValue = () => form.querySelector<HTMLInputElement>('[name="slot"]:checked')?.value ?? '';
+    const extrasValue = () => extraBoxes.filter((b) => b.checked).map((b) => b.value);
+    let dirty = false;
+
+    const range = dateRange(new Date());
+    date.min = range.min;
+    date.max = range.max;
+
+    const serviceLabel = () => (service.value === 'unsure' ? 'Подберём на месте' : (serviceById(service.value)?.name ?? 'Услуга не выбрана'));
+
+    const updateSummary = () => {
+      const q = (s: string) => summary.querySelector<HTMLElement>(s)!;
+      q('[data-s-service]').textContent = serviceLabel();
+      q('[data-s-extras]').replaceChildren(
+        ...formExtras.filter((x) => extrasValue().includes(x.id)).map((x) => {
+          const li = document.createElement('li');
+          li.textContent = `+ ${x.label.toLowerCase()}`;
+          return li;
+        }),
+      );
+      const est = estimate(service.value, extrasValue());
+      q('[data-s-price]').textContent = est.price === null ? (service.value === 'unsure' ? 'назовёт мастер' : '—') : rub(est.price);
+      q('[data-s-time]').textContent = est.minutes === null ? '—' : `около ${minutes(est.minutes)}`;
+    };
+
+    /* ---- Errors: one message under each field plus a linked summary at the top ---- */
+    const fieldFor: Record<keyof BookingErrors, HTMLElement> = {
+      service,
+      date,
+      slot: form.querySelector<HTMLInputElement>('[name="slot"]')!,
+      name,
+      phone,
+      consent,
+    };
+    const showErrors = (errors: BookingErrors) => {
+      (Object.keys(fieldFor) as (keyof BookingErrors)[]).forEach((key) => {
+        const msg = errors[key] ?? '';
+        form.querySelector<HTMLElement>(`[data-error="${key}"]`)!.textContent = msg;
+        const targets = key === 'slot' ? [...form.querySelectorAll<HTMLInputElement>('[name="slot"]')] : [fieldFor[key]];
+        targets.forEach((t) => (msg ? t.setAttribute('aria-invalid', 'true') : t.removeAttribute('aria-invalid')));
+      });
+      const box = form.querySelector<HTMLElement>('[data-errors]')!;
+      const list = box.querySelector('[data-errors-list]')!;
+      const entries = Object.entries(errors) as [keyof BookingErrors, string][];
+      list.replaceChildren(
+        ...entries.map(([key, msg]) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `#${fieldFor[key].id || ''}`;
+          a.textContent = msg;
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+            fieldFor[key].focus();
+          });
+          li.append(a);
+          return li;
+        }),
+      );
+      box.hidden = entries.length === 0;
+      return box;
+    };
+
+    const input = () => ({ service: service.value, extras: extrasValue(), date: date.value, slot: slotValue(), name: name.value, phone: phone.value, consent: consent.checked });
+    let tried = false;
+
+    form.addEventListener('input', () => {
+      dirty = true;
+      updateSummary();
+      // After the first attempt, errors clear as soon as a field becomes valid.
+      if (tried) showErrors(validate(input(), new Date()));
+    });
+    form.addEventListener('change', updateSummary);
+
+    phone.addEventListener('blur', () => {
+      const digits = normalizePhone(phone.value);
+      if (digits) phone.value = formatPhone(digits);
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      tried = true;
+      const data = input();
+      const errors = validate(data, new Date());
+      const box = showErrors(errors);
+      if (Object.keys(errors).length) {
+        box.scrollIntoView({ block: 'center' });
+        focusQuietly(box);
+        return;
+      }
+      // A working version would POST here to the salon's booking system; see README → «Настоящие заявки».
+      const est = estimate(data.service, data.extras);
+      const rows: [string, string][] = [
+        ['Услуга', serviceLabel()],
+        ...(data.extras.length ? [['Дополнительно', formExtras.filter((x) => data.extras.includes(x.id)).map((x) => x.label.toLowerCase()).join(', ')] as [string, string]] : []),
+        ['Мастер', master.value || 'любой свободный'],
+        ['Когда', `${new Date(`${data.date}T12:00`).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })}, ${slots.find((s) => s.value === data.slot)!.label.toLowerCase()}`],
+        ['Имя', data.name.trim()],
+        ['Телефон', maskPhone(normalizePhone(data.phone)!)],
+        ['Стоимость', est.price === null ? 'назовёт мастер' : rub(est.price)],
+      ];
+      done.querySelector('[data-done-list]')!.replaceChildren(
+        ...rows.flatMap(([k, v]) => {
+          const dt = document.createElement('dt');
+          const dd = document.createElement('dd');
+          dt.textContent = k;
+          dd.textContent = v;
+          return [dt, dd];
+        }),
+      );
+      form.hidden = true;
+      summary.hidden = true;
+      done.hidden = false;
+      dirty = false;
+      reveal(done, 14);
+      done.scrollIntoView({ block: 'start' });
+      focusQuietly(done);
+    });
+
+    const backToForm = () => {
+      done.hidden = true;
+      form.hidden = false;
+      summary.hidden = false;
+      focusQuietly(service);
+    };
+    done.querySelector('[data-edit]')!.addEventListener('click', backToForm);
+    done.querySelector('[data-clear]')!.addEventListener('click', () => {
+      form.reset();
+      tried = false;
+      showErrors({});
+      updateSummary();
+      backToForm();
+    });
+
+    // Nothing is stored anywhere, so leaving with a half-filled form would lose it: the browser asks first.
+    addEventListener('beforeunload', (e) => {
+      if (dirty && !form.hidden) e.preventDefault();
+    });
+
+    /* ---- «Выбрать», «Записаться к …» and the helper prefill the form ---- */
+    document.addEventListener('click', (e) => {
+      const link = (e.target as Element).closest<HTMLElement>('[data-book], [data-master]');
+      if (!link) return;
+      if (!done.hidden) backToForm();
+      const id = link.dataset.book;
+      if (id) {
+        const s = serviceById(id);
+        if (s?.addon) {
+          const box = extraBoxes.find((b) => b.value === 'design');
+          if (box) box.checked = true;
+          if (!service.value) service.value = 'gel';
+        } else if (s) {
+          service.value = s.id;
+        }
+        const extras = link.dataset.extras?.split(' ').filter(Boolean) ?? [];
+        if (extras.length) extraBoxes.forEach((b) => (b.checked = extras.includes(b.value)));
+      }
+      if (link.dataset.master) master.value = link.dataset.master;
+      updateSummary();
+      reveal(summary, 8);
+      // The anchor scrolls to the section; focus goes to the heading so keyboard users land there too.
+      setTimeout(() => focusQuietly(document.querySelector<HTMLElement>('#zapis-title')), 0);
+    });
+
+    updateSummary();
+  }
+</script>

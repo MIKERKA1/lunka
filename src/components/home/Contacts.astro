@@ -1,0 +1,58 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from '../Icon.astro';
+import { photo } from '../../data/photos';
+import { site } from '../../data/site';
+---
+
+<section id="kontakty" class="section band-plum contacts" aria-labelledby="kontakty-title">
+  <div class="container contacts__grid">
+    <div class="contacts__cta">
+      <h2 id="kontakty-title" class="display contacts__title">Приходите, сделаем красиво</h2>
+      <p class="lead">Запись занимает минуту. Не уверены, какую услугу выбрать? Отметьте «Пока не знаю», и мастер подскажет на месте.</p>
+      <div class="contacts__actions">
+        <a class="btn btn--light" href="#zapis">Записаться</a>
+        <a class="btn btn--ghost" href={site.phone.href}><Icon name="phone" /> Позвонить</a>
+      </div>
+    </div>
+
+    <div class="contacts__info">
+      <Picture src={photo('work-polish')} alt="Стеллаж с лаками разных оттенков" formats={['avif', 'webp']} widths={[360, 540, 720]} sizes="(max-width: 900px) 40vw, 18vw" loading="lazy" class="contacts__photo" />
+      <dl class="contacts__list">
+        <div>
+          <dt><Icon name="map-pin" /> Адрес</dt>
+          <dd>{site.city}, {site.address}<span class="small">{site.addressNote}</span></dd>
+        </div>
+        <div>
+          <dt><Icon name="clock" /> Часы работы</dt>
+          <dd>{site.hoursShort.map((h) => <span class="num">{h.days}: {h.time}</span>)}</dd>
+        </div>
+        <div>
+          <dt><Icon name="phone" /> Телефон</dt>
+          <dd><a class="num" href={site.phone.href}>{site.phone.display}</a><span class="small">Демо-номер, никуда не дозвонится</span></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contacts__grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(2.5rem, 1rem + 5vw, 6rem); align-items: end; }
+  .contacts__title { max-width: 7em; }
+  .contacts__cta .lead { margin-top: 1.5rem; }
+  .contacts__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+  .contacts__info { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 1.5rem; align-items: end; }
+  .contacts__info :global(.contacts__photo) { width: 100%; aspect-ratio: 9 / 16; object-fit: cover; border-radius: var(--nail-almond); }
+  .contacts__list { display: grid; gap: 1.25rem; }
+  .contacts__list dt { display: flex; gap: 0.45rem; align-items: center; font-weight: 650; color: var(--ink-2); }
+  .contacts__list dd { display: grid; gap: 0.15rem; margin-top: 0.3rem; font-size: var(--step-1); }
+  .contacts__list dd .small { color: var(--ink-2); font-size: var(--step--1); }
+  @media (max-width: 900px) {
+    .contacts__grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .contacts__info { grid-template-columns: 1fr; }
+    .contacts__info :global(.contacts__photo) { display: none; }
+    .contacts__actions .btn { flex: 1 1 100%; }
+  }
+</style>
